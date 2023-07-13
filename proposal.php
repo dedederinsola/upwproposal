@@ -25,7 +25,7 @@ $password = $_POST['password'];
 
 class User{
     public function authenticate($conn, $email, $password) {
-        $login = "SELECT * FROM proposal WHERE email=? AND password=?";
+        $login = "SELECT * FROM details WHERE email=? AND password=?";
 
         //Prepare the statement
         $stmt = mysqli_prepare($conn, $login);
@@ -44,7 +44,7 @@ class User{
 
         // Check if there is a row returned
         if (mysqli_num_rows($result) == 1) {
-            header('Location: dashboard.php');
+            header('Location: dashboard.html');
         exit;
 
         } else {
@@ -62,7 +62,7 @@ class User{
     }
 
     public function register($conn, $email, $password) {
-        $reg = 'INSERT INTO proposal (email, password) VALUES (?, ?)';
+        $reg = 'INSERT INTO details (email, password) VALUES (?, ?)';
 
         //Prepare the statement
         $stmt = mysqli_prepare($conn, $reg);
@@ -77,18 +77,36 @@ class User{
         mysqli_stmt_execute($stmt);
 
         if (mysqli_stmt_execute($stmt)){
-            header('Location: dashboard.php');
-        }        
+            header('Location: dashboard.html');
+        } else {
+            // Invalid username or password
+            $error = "die('Error in preparing the statement:"  . mysqli_error($conn);
+            include("proposalsignup.html");
+            }
+    
+            // Close the prepared statement
+            mysqli_stmt_close($stmt);
+    
+            // Close the database connection
+            mysqli_close($conn);       
     }
 
 }
 
 $user = new User();
 
-if ($_POST['action'] === 'login') {
-    $user->authenticate($conn, $email, $password);
-} elseif ($_POST['action'] === 'register') {
-    $user->register($conn, $email, $_password);
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    if ($_POST['request'] === 'login') {
+        $user->authenticate($conn, $email, $password);
+        var_dump($email);
+        echo 'somebody, anybody';
+    } elseif ($_POST['request'] === 'register') {
+        $user->register($conn, $email, $password);
+        echo'hiiiii';
+    }
+    echo 'hiii';
+    var_dump($_POST['request']);
+} else {
+    echo 'noooo :(';
 }
-
 ?>
